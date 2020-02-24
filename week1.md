@@ -9,17 +9,17 @@ these things yet):
 
 |                        | Never heard of it | Heard of it | Played with it | Used it | Understand it internally |
 | ---------------------- | ----------------- | ----------- | -------------- | ------- | ------------------------ |
-| Node.js                |                   |             |                |         |                          |
-| Express.js             |                   |             |                |         |                          |
-| Mongo DB               |                   |             |                |         |                          |
-| Mongoose               |                   |             |                |         |                          |
-| HTTP                   |                   |             |                |         |                          |
-| REST                   |                   |             |                |         |                          |
-| Database Schemas       |                   |             |                |         |                          |
-| React                  |                   |             |                |         |                          |
-| Redux                  |                   |             |                |         |                          |
-| WebSockets             |                   |             |                |         |                          |
-| Continuous Integration |                   |             |                |         |                          |
-| git                    |                   |             |                |         |                          |
-| GitHub                 |                   |             |                |         |                          |
-| Docker                 |                   |             |                |         |                          |
+| Node.js                |                   |             |        X        |         |                          |
+| Express.js             |      X             |             |                |         |                          |
+| Mongo DB               |                   |        X     |                |         |                          |
+| Mongoose               |         X          |             |                |         |                          |
+| HTTP                   |                   |    X         |                |         |                          |
+| REST                   |                   |             |                |               X    |                          |
+| Database Schemas       |                   |     X        |                |         |                          |
+| React                  |                   |             |                |                 X     |                          |
+| Redux                  |                   |             |         X       |         |                          |
+| WebSockets             |                   |      X       |                |         |                          |
+| Continuous Integration |                   |     X        |                |         |                          |
+| git                    |                   |             |                |     X    |                          |
+| GitHub                 |                   |             |                |     X    |                          |
+| Docker                 |           X        |             |                |         |                          |
