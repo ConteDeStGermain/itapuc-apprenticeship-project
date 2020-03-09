@@ -212,3 +212,203 @@ We can now send HTTP requests to our application, and it will handle them:
 $ curl http://localhost:8080/hello
 hi there
 ```
+
+### React
+
+I'll spare going over React, since you are already familiar with it.
+
+## Task 1 - Install Necessary Software
+
+You will need to install, at a minimum:
+
+- Node.js (https://nodejs.org)
+- Mongo DB (https://www.mongodb.com)
+
+## Task 2 - Setup the backend
+
+Checkout `master`, pull latest changes, and create a new branch to work on:
+
+```bash
+$ git checkout master
+$ git pull
+$ git checkout -b task/setup-node
+```
+
+Now, initialize a new npm project in the repo root:
+
+```bash
+npm init
+```
+
+You will be prompted to fill out some information - for the most part you can go
+with the defaults. You can name the project whatever you like.
+
+Commit the `package.json` file to the repo:
+
+```bash
+$ git add package.json
+$ git commit -m "initialze node package"
+```
+
+Now, install a few packages which we will need:
+
+```bash
+$ npm install express mongodb
+```
+
+You will notice two new things:
+
+1. A `node_modules` folder will be created. We want to add this to the
+   `.gitignore`, and not commit this directory to the repo.
+
+   ```bash
+   echo "node_modules" >> .gitignore
+   ```
+2. A `package-lock.json` file. We _do_ want to check this file into the repo, as
+   it will ensure that the versions of all the installed packagtes do not change
+   between installs on different machines unless we explicitly want them to.
+
+Commit the changes:
+
+```bash
+$ echo "node_modules" >> .gitignore
+$ git add package*.json .gitignore
+$ git commit "install mongodb and express packages"
+```
+
+Create a file called `server.js` which creates and runs a new express web app.
+
+```js
+const express = require("express");
+
+# Entry point for our application
+async function main() {
+  const app = express();
+
+  return app.listen(8080);
+}
+
+// Run the main function.
+main();
+```
+
+Add and commit this file.
+
+With all this done, push the branch to GitHub
+
+```bash
+$ git push -u origin task/setup-node
+```
+
+And create a Pull Request.
+
+## Task 3 - Setup the database
+
+After merging the previous task, create another new branch
+
+```bash
+$ git checkout master
+$ git pull
+$ git branch -d task/setup-node     # Delete the previous branch
+$ git checkout -b task/setup-mongo
+```
+
+Create a new file called `db.js`. Here, we will initialize our database
+connection and set schema validation rules for our collections.
+
+```js
+const { MongoClient } = require("mongodb");
+
+module.exports = async function () {
+  # URL to our local Mongo instance - we will worry about configuring this
+  # later.
+  const url = "mongodb://localhost:27017";
+
+  # The name of the database we will create in Mongo
+  const dbName = "messenger";
+
+  # Connect to the server
+  const client = await MongoClient.connect(url);
+
+  # Open a connection to the database
+  const db = client.db(dbName);
+
+  # initialize our collections
+  db.createCollection("users", {
+    validator: {
+      // Left as an exercise - see note below
+    },
+  });
+
+  db.createCollection("rooms", {
+    validator: {
+      // Left as an exercise - see note below
+    },
+  });
+
+  db.createCollection("messages", {
+    validator: {
+      // Left as an exercise - see note below
+    },
+  });
+
+  return { client, db };
+}
+```
+
+NOTE - Mongo db allows you to specify schema validation rules using a standard
+called JSON schema. Here is a page that describes this in detail:
+(https://docs.mongodb.com/manual/core/schema-validation/). With schema
+validation, MongoDB will throw an error if we attempt to write data which does
+not satify the schema. Try and use JSON schema and the documentation provided in
+the link above to implement the schema specifications in `schema.md`.
+
+Commit this file.
+
+Update `server.js` to call this function and make the database connection
+available to the rest of the application. We also want to ensure that when
+the server is shut down, we close the connection to Mongo, so it is free to use
+the resources it has allocated for the connection:
+
+```js
+const express = require("express");
+const makeDb = require("./db");
+
+# Entry point for our application
+async function main() {
+  const app = express();
+
+  # Create a connection to the database which we can pass down where it is required.
+  const { client, db } = await makeDb();
+
+  return { server: app.listen(8080), client };
+}
+
+// Run the main function.
+main().then(({ server, client }) => {
+  # Run the shutdown function when we receive a kill signal
+  process.on("SIGTERM", shutDown);
+  process.on("SIGINT", shutDown);
+
+  function shutDown () {
+    console.log("Received kill signal, shutting down gracefully");
+
+    // close the server
+    server.close();
+
+    // close connection to Mongo
+    client.close();
+
+    // exit gracefully
+    process.exit(0);
+  }
+});
+```
+
+NOTE - it is good practice to gracefully close open connections to database
+engines, as it tells them they may free up resources associated with the
+connection. The only way we have to close our application is by sending it a
+kill signal (e.g. by pressing `ctrl-c` in the terminal running the server),
+which we can handle with a function.
+
+Commit your changes to `server.js` and make a Pull Request.
