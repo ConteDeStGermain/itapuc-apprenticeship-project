@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/jhbertra/itapuc-apprenticeship-project/issues"
   },
-  "homepage": "https://github.com/jhbertra/itapuc-apprenticeship-project#readme"
+  "homepage": "https://github.com/jhbertra/itapuc-apprenticeship-project#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongodb": "^3.5.4"
+  }
 }
