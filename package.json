@@ -1,11 +1,9 @@
 {
-  "name": "itapuc-apprenticeship-project",
+  "name": "messaging-app",
   "version": "1.0.0",
-  "description": "Task 2",
+  "description": "Building the backend of a messaging web app.",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "start": "node server.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jhbertra/itapuc-apprenticeship-project.git"

@@ -1,4 +1,5 @@
 const express = require("express");
+import 'messaging-app';
 
 // Entry point or our application
 async function main() {
