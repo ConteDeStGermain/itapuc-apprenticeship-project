@@ -1,11 +1,11 @@
 const express = require("express");
-import 'messaging-app';
+const connect = require("./db");
 
 // Entry point or our application
 async function main() {
-	const app = express();
+  const app = express();
 
-  const { dp, client } = await connect();
+  const { db, client } = await connect();
 
   const server = app.listen(8082, () => {
     console.log('Server is listening on port 8082')

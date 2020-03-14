@@ -1,12 +1,16 @@
+const dateSchema = { bsonType: "Date", type: "string" };
+const objectIdSchema = {
+  bsonType: "ObjectId",
+  type: "string",
+  pattern: "[a-fA-F0-9]{24}"
+};
+
 module.exports.userSchema = {
     type: "object",
   
     required: ["createdAt", "email"],
     properties: {
-      createdAt: {
-        bsonType: "Date",
-        type: "string",
-      },
+      createdAt: dateSchema,
       displayName: {
         type: "string",
       },
@@ -26,17 +30,11 @@ module.exports.userSchema = {
         bsonType: "Date",
         type: "string",
       },
-      lastMessage: {
-        bsonType: 'ObjectId',
-        type: "string",
-      },
+      lastMessage: objectIdSchema,
       participants: {
         type: 'array',
         uniqueItems: true,
-        items: {
-            bsonType: 'ObjectId',
-            type: 'string'
-        }
+        items: objectIdSchema
       },
     },
   };
@@ -46,14 +44,8 @@ module.exports.userSchema = {
   
     required: ['createdAt', 'authorId', 'text'],
     properties: {
-      createdAt: {
-        bsonType: "Date",
-        type: "string",
-      },
-      authorId: {
-        bsonType: 'ObjectId',
-        type: "string",
-      },
+      createdAt: dateSchema,
+      authorId: objectIdSchema,
       text: {
         type: 'string',
       },

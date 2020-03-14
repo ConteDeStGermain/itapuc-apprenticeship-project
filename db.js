@@ -1,4 +1,5 @@
 const { MongoClient } = require("mongodb");
+const { userSchema, roomSchema, messageSchema } = require("./schema");
 
 module.exports = async function connect() {
 
