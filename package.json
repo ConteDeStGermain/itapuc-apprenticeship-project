@@ -2,8 +2,10 @@
   "name": "messaging-app",
   "version": "1.0.0",
   "description": "Building the backend of a messaging web app.",
-  "main": "index.js",
-  "start": "node server.js",
+  "main": "server.js",
+  "script": {
+    "start": "node server.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jhbertra/itapuc-apprenticeship-project.git"

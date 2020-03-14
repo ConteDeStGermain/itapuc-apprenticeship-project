@@ -1,36 +1,23 @@
 const { MongoClient } = require("mongodb");
 
-module.exports = async function () {
+module.exports = async function connect() {
 
   const url = "mongodb://localhost:27017";
 
-  // The name of the database we will create in Mongo
   const dbName = "messenger";
 
-  //Connect to the server
+
   const client = await MongoClient.connect(url);
 
-  // Open a connection to the database
   const db = client.db(dbName);
 
-  // initialize our collections
-  db.createCollection("users", {
-    validator: {
-      // Left as an exercise - see note below
-    },
-  });
-
-  db.createCollection("rooms", {
-    validator: {
-      // Left as an exercise - see note below
-    },
-  });
-
-  db.createCollection("messages", {
-    validator: {
-      // Left as an exercise - see note below
-    },
-  });
+  db.createCollection("users");
+  db.createCollection("rooms");
+  db.createCollection("messages");
+  
+  db.command({ collMod: "users", validator: { $jsonSchema: userSchema } });
+  db.command({ collMod: "rooms", validator: { $jsonSchema: roomSchema } });
+  db.command({ collMod: "messages", validator: { $jsonSchema: messageSchema } });
 
   return { client, db };
 }

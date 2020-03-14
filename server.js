@@ -5,24 +5,26 @@ import 'messaging-app';
 async function main() {
 	const app = express();
 
-	return app.listen(8080);
+  const { dp, client } = await connect();
+
+  const server = app.listen(8082, () => {
+    console.log('Server is listening on port 8082')
+  });
+
+  return { server, client };
 }
 
 main().then(({ server, client }) => {
-  # Run the shutdown function when we receive a kill signal
   process.on("SIGTERM", shutDown);
   process.on("SIGINT", shutDown);
 
   function shutDown () {
     console.log("Received kill signal, shutting down gracefully");
 
-    // close the server
     server.close();
 
-    // close connection to Mongo
     client.close();
 
-    // exit gracefully
     process.exit(0);
   }
 });
