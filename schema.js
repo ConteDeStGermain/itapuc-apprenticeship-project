@@ -1,7 +1,6 @@
 const dateSchema = { bsonType: "date" };
 const objectIdSchema = {
   bsonType: "objectId",
-  pattern: "[a-fA-F0-9]{24}"
 };
 
 module.exports.userSchema = {
