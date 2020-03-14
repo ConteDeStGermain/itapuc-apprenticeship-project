@@ -3,15 +3,19 @@ const connect = require("./db");
 
 // Entry point or our application
 async function main() {
-  const app = express();
+  try {
+    const app = express();
 
-  const { db, client } = await connect();
+    const { db, client } = await connect();
 
-  const server = app.listen(8082, () => {
-    console.log('Server is listening on port 8082')
-  });
+    const server = app.listen(8082, () => {
+      console.log('Server is listening on port 8082')
+    });
 
-  return { server, client };
+    return { server, client };
+  } catch(error) {
+    console.log(error);
+  }
 }
 
 main().then(({ server, client }) => {

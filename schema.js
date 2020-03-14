@@ -1,7 +1,6 @@
-const dateSchema = { bsonType: "Date", type: "string" };
+const dateSchema = { bsonType: "date" };
 const objectIdSchema = {
-  bsonType: "ObjectId",
-  type: "string",
+  bsonType: "objectId",
   pattern: "[a-fA-F0-9]{24}"
 };
 
@@ -15,8 +14,7 @@ module.exports.userSchema = {
         type: "string",
       },
       email: {
-        type: "string",
-        pattern: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/
+        type: "string"
       },
     },
   };
@@ -27,8 +25,7 @@ module.exports.userSchema = {
     required: ['createdAt', 'participants'],
     properties: {
       createdAt: {
-        bsonType: "Date",
-        type: "string",
+        bsonType: "date",
       },
       lastMessage: objectIdSchema,
       participants: {
