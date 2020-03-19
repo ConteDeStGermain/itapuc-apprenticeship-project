@@ -92,5 +92,5 @@
   - `DELETE /users/{id}`
     - deletes a single user
     - response codes:
-      - 200 if user deleted
+      - 204 if user deleted
       - 404 if user not found

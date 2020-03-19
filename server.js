@@ -1,12 +1,18 @@
 const express = require("express");
+const morgan = require("morgan");
 const connect = require("./db");
+const users = require("./api/users");
 
 // Entry point or our application
 async function main() {
   try {
     const app = express();
 
+    app.use(morgan('tiny'));
+
     const { db, client } = await connect();
+
+    app.use("/users", users(db));
 
     const server = app.listen(8082, () => {
       console.log('Server is listening on port 8082')
