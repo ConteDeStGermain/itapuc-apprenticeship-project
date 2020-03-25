@@ -8,7 +8,12 @@ async function main() {
   try {
     const app = express();
 
+    // Avoid sending stack traces with expressb by using a middleware
     app.use(morgan('tiny'));
+
+    app.use(function middleware(error, req, res, next ) { //<- this is a middleware
+      res.send(process.env.NODE_ENV === 'debug' ? error: null).status(500);
+    });   
 
     const { db, client } = await connect();
 
