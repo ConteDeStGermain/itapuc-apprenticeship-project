@@ -3,12 +3,6 @@ const express = require("express");
 module.exports = function users(db) {
   const router = express.Router();
 
-  function encodeUser(document) {
-    return {
-      id: document._id,
-      displayName: document.displayName,
-    };
-  };
   // You will be able to use this object to access the users collection in
   // Mongo.
   const usersCollection = db.collection("users");
@@ -41,6 +35,8 @@ module.exports = function users(db) {
     // 3. Create the user in Mongo
     // 4. Send the response back
     const body = req.body;
+
+    
   });
 
   router.put("/:userId", function (req, res) {
@@ -70,4 +66,4 @@ function encodeUser(document) {
     id: document._id,
     displayName: document.displayName,
   };
-};
+}
