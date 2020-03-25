@@ -1,6 +1,7 @@
+const bodyParser = require("body-parser");
+const connect = require("./db");
 const express = require("express");
 const morgan = require("morgan");
-const connect = require("./db");
 const users = require("./api/users");
 
 // Entry point or our application
@@ -10,14 +11,15 @@ async function main() {
 
     // Avoid sending stack traces with expressb by using a middleware
     app.use(morgan('tiny'));
-
-    app.use(function middleware(error, req, res, next ) { //<- this is a middleware
-      res.send(process.env.NODE_ENV === 'debug' ? error: null).status(500);
-    });   
+    app.use(bodyParser.json());
 
     const { db, client } = await connect();
 
     app.use("/users", users(db));
+
+    app.use(function middleware(error, req, res, next ) { //<- this is a middleware
+      res.send(process.env.NODE_ENV === 'debug' ? error: null).status(500);
+    });
 
     const server = app.listen(8082, () => {
       console.log('Server is listening on port 8082')

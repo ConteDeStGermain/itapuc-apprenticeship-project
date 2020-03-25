@@ -5,7 +5,6 @@ module.exports = function users(db) {
 
   // You will be able to use this object to access the users collection in
   // Mongo.
-
   const usersCollection = db.collection("users");
   
   router.get("/", function (req, res) {
@@ -13,11 +12,11 @@ module.exports = function users(db) {
     // 2. Send a response to the client
 
     usersCollection.find().toArray((err, userDocs) => {
-      res.send(userDocs.map(encodeUser));
+      res.send({ data: userDocs.map(encodeUser) });
     });
   });
 
-  router.get("/:userId", function (req, res) {
+  router.get("/:userId", function (req, res, next) {
     // 1. Load the user from the database with the given ID
     // 2. Send the appropriate a response to the client
 
@@ -29,16 +28,16 @@ module.exports = function users(db) {
 
     usersCollection.findOne({ _id: userId }, (err, userDoc ) => {
       if (err) {
-        res.sendStatus(500);
+        next(err);
       } else if (userDoc) {
-        res.send(encodeUser(userDoc));
+        res.send({ data: encodeUser(userDoc) });
       } else {
         res.sendStatus(404);
       }
     });
   });
 
-  router.post("/", function (req, res) {
+  router.post("/", function (req, res, next) {
     // 1. Validate the body
     // 2. check for a user with the same email address
     // 3. Create the user in Mongo
@@ -46,26 +45,30 @@ module.exports = function users(db) {
 
     const body = req.body;
 
-    if (typeof body !== 'object' || body == null || !Array.isArray(body)) {
+    if (typeof body !== 'object' || body == null || Array.isArray(body)) {
       res.send({ message: 'body expected to be an object' }).status(400);
       return;
     } 
 
-    usersCollection.findOne({ email: body.email }, (err, userDoc) => {
-      if (userDoc) {
-        res.json({ message: 'email already exists' }).status(400);
-      };
-    });
+    // need to do some more input validation here
 
-    usersCollection.insertOne({ createdAt: new Date(), email: body.email, displayName: body.displayName }, (err, result) => {
+    usersCollection.findOne({ email: body.email }, (err, userDoc) => {
       if (err) {
-        console.log('obj insertion error');
+        next(err);
+      } else if (userDoc) {
+        res.json({ message: 'email already exists' }).status(400);
+      } else {
+        usersCollection.insertOne({ createdAt: new Date(), email: body.email, displayName: body.displayName }, (err, newUserDoc) => {
+          if (err) {
+            next(err);
+          }
+          res.json({ data: encodeUser(newUserDoc.result) }).status(201);
+        });
       }
-      result.send({ message: 'User object successfully added' }).status(201);
     });
   });
 
-  router.put("/:userId", function (req, res) {
+  router.put("/:userId", function (req, res, next) {
     // 1. Validate the body
     // 2. Load the user from the database with the given ID
     // 3. Send a 404 if it doesn't exist
@@ -77,49 +80,56 @@ module.exports = function users(db) {
     const body = req.body;
 
     if (typeof body !== 'object' || body == null || !Array.isArray(body)) {
-      res.send({ message: 'body expected to be an object' }).status(400);
+      res.json({ message: 'body expected to be an object' }).status(400);
       return;
-    } 
+    }
+    // extract a function for validateUserBody(body, res)
+    // if (validateUserBody(body, res) {
+    //    return;
+    // }
 
     usersCollection.findOne({ _id: userId }, (err, userDoc) => {
-      if (!userDoc) {
-        res.json({ message: 'The user does not exist' }).status(400);
-      }
-    });
-
-    let newValues = {$set: {displayName: body.displayName, email: body.email }}
-
-    usersCollection.updateOne({ _id: userId }, newValues, (err, res) => {
       if (err) {
-        console.log('Update user error');
+        next(err);
+      } else if (!userDoc) {
+        res.json({ message: 'The user does not exist' }).status(400);
+      } else {
+        const newValues = {$set: {displayName: body.displayName, email: body.email }}
+
+        usersCollection.updateOne({ _id: userId }, newValues, (err, newUserDoc) => {
+          if (err) {
+            next(err);
+          } else {
+            res.json({ data: encodeUser(newUserDoc.result) }).status(200);
+          }
+        });
       }
-
-      res.send({ message: 'User successfully updated' }).status(200);
     });
-
   });
 
-  router.delete("/:userId", function (req, res) {
+  router.delete("/:userId", function (req, res, next) {
     // 1. Load the user from the database with the given ID
     // 2. Send a 404 if it doesn't exist
     // 3. Delete the user from mongo
     // 5. Send the response back
 
     const userId = req.params.userId;
-  
+
     usersCollection.findOne({ _id: userId }, (err, userDoc) => {
-      if (!userDoc) {
+      if (err) {
+        next(err);
+      } else if (!userDoc) {
         res.json({ message: 'The user does not exist' }).status(400);
+      } else {
+        usersCollection.deleteOne({ _id: userId }, (err) => {
+          if (err) {
+            next(err);
+          } else {
+            res.sendStatus(200);
+          }
+        });
       }
     });
-
-    usersCollection.deleteOne({ _id: userId }, (err, res) => {
-      if (err) {
-        console.log('Error in deleting user');
-      };
-      res.send({ message: 'User successfully deleted' }).status(200);
-    });
-
   });
 
   return router;
