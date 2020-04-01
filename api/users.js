@@ -48,16 +48,7 @@ module.exports = function users(db) {
 
     const body = req.body;
 
-    if (typeof body !== 'object' || body == null || Array.isArray(body)) {
-      res.send({ message: 'body expected to be an object' }).status(400);
-      return;
-    }
-
-    if(!validateEmail(body.email)) {
-      res.json({ message: 'email not valid' }).status(400);
-      return;
-    } else if (!validateDisplayName(body.displayName)) {
-      res.json({ message: 'display name has to be a string' }).status(400);
+    if(!validateRequestBody(req.body, res)) {
       return;
     }
 
@@ -89,16 +80,7 @@ module.exports = function users(db) {
 
     const body = req.body;
 
-    if (typeof body !== 'object' || body == null || !Array.isArray(body)) {
-      res.json({ message: 'body expected to be an object' }).status(400);
-      return;
-    }
-
-    if(!validateEmail(body.email)) {
-      res.json({ message: 'email not valid' }).status(400);
-      return;
-    } else if (!validateDisplayName(body.displayName)) {
-      res.json({ message: 'display name has to be a string' }).status(400);
+    if(!validateRequestBody(req.body, res)) {
       return;
     }
 
@@ -160,16 +142,24 @@ function encodeUser(document) {
 }
 
 const validateDisplayName = (name) => {
-  return typeof name !== 'string'?  true : false;
+  return name == null ||  typeof name === 'string';
 };
 
+const emailRegEx = /\w+@\w+\.[A-Za-z]{2,3}/;
+
 const validateEmail = (email) => {
-  let regx = /\w+@\w+\.[A-Za-z]{3}/;
-  if(typeof body !== 'string') {
+  return typeof email === "string" || emailRegEx.test(email);
+};
+
+const validateRequestBody = (body, res) => {
+  if (typeof body !== 'object' || body == null || !Array.isArray(body)) {
+    res.json({ message: 'body expected to be an object' }).status(400);
     return false;
-  } else if (regx.test(email)) {
+  } else if(!validateEmail(body.email)) {
+    res.json({ message: 'email not valid' }).status(400);
     return false;
-  } else if (email === '' || email === undefined) {
+  } else if (!validateDisplayName(body.displayName)) {
+    res.json({ message: 'display name has to be a string' }).status(400);
     return false;
   } else {
     return true;
