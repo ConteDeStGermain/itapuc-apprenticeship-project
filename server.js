@@ -3,7 +3,7 @@ const connect = require("./db");
 const express = require("express");
 const morgan = require("morgan");
 const users = require("./api/users");
-const rooms = require("./api/rooms.js");
+const rooms = require("./api/rooms");
 
 // Entry point or our application
 async function main() {
