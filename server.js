@@ -21,6 +21,7 @@ async function main() {
 
     app.use(function middleware(error, req, res, next ) { //<- this is a middleware
       res.send(process.env.NODE_ENV === 'debug' ? error: null).status(500);
+      console.error(error);
     });
 
     const server = app.listen(8082, () => {
