@@ -58,7 +58,7 @@ module.exports = function rooms(db) {
       } else if (!userDoc) {
         res.json({ message: 'The room does not exist' }).status(400);
       } else {
-        usersCollection.deleteOne({ _id: roomId }, (err) => {
+        roomsCollection.deleteOne({ _id: roomId }, (err) => {
           if (err) {
             next(err);
           } else {
