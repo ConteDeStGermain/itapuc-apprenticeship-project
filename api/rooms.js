@@ -9,8 +9,8 @@ module.exports = function rooms(db) {
 
   // GET
   router.get("/", function (req, res) {
-    roomsCollection.find().toArray((err, userDocs) => {
-        res.send({ data: userDocs.map(encodeRoom) });
+    roomsCollection.find().toArray((err, roomDocs) => {
+        res.send({ data: roomDocs.map(encodeRoom) });
       });
   });
 
@@ -19,44 +19,36 @@ module.exports = function rooms(db) {
     let userIds = req.body.participants;
 
     try { userIds = userIds.map(userId => new ObjectId(userId)); } catch(e) {console.log('Try Catch: ' + e)}
-
-    usersCollection.findOne({ _id: userIds[0]}, (err, userDoc) => {
-      if (err) {
-        next(err);
-      } else if (!userDoc) {
-        res.sendStatus(404);
-        return;
+ 
+    usersCollection.find({ _id: {$in: userIds } }, (error, userDocs) => {
+      if (error) {
+        next(error);
+      } else if (userDocs.length !== userIds.length) {
+        res.json({ message: "Invalid user IDs" }).status(400);
+      } else {
+        roomsCollection.insertOne({ createdAt: new Date(), participants: userIds }, (err, results) => {
+          if (err) {
+            next(err);
+          } else {
+            res.json({ data: encodeRoom(results.ops[0]) }).status(201);
+          }
+        });
       }
     });
 
-    usersCollection.findOne({ _id: userIds[1]}, (err, userDoc) => {
-      if (err) {
-        next(err);
-      } else if (!userDoc) {
-        res.sendStatus(404);
-        return;
-      } 
-    });
-    
-    roomsCollection.insertOne({ createdAt: new Date(), participants: userIds }, (err, results) => {
-        if (err) {
-          next(err);
-        } 
-        res.json({ data: encodeRoom(results.ops[0]) }).status(201);
-      });
   });
 
   // DELETE
   router.delete("/:roomId", function (req, res, next) {
     let roomId = req.params.roomId;
 
-    roomId = new ObjectId(roomId);
+    try {roomId = new ObjectId(roomId);} catch(e) {console.log('Delete function: ' + e)}
 
-    roomsCollection.findOne({ _id: roomId }, (err, userDoc) => {
+    roomsCollection.findOne({ _id: roomId }, (err, roomDoc) => {
       if (err) {
         next(err);
-      } else if (!userDoc) {
-        res.json({ message: 'The room does not exist' }).status(400);
+      } else if (!roomDoc) {
+        res.json({ message: 'The room does not exist' }).status(404);
       } else {
         roomsCollection.deleteOne({ _id: roomId }, (err) => {
           if (err) {
