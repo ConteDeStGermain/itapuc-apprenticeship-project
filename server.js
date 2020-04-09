@@ -3,6 +3,7 @@ const connect = require("./db");
 const express = require("express");
 const morgan = require("morgan");
 const users = require("./api/users");
+const rooms = require("./api/rooms");
 
 // Entry point or our application
 async function main() {
@@ -16,9 +17,11 @@ async function main() {
     const { db, client } = await connect();
 
     app.use("/users", users(db));
+    app.use("/rooms", rooms(db));
 
     app.use(function middleware(error, req, res, next ) { //<- this is a middleware
       res.send(process.env.NODE_ENV === 'debug' ? error: null).status(500);
+      console.error(error);
     });
 
     const server = app.listen(8082, () => {
