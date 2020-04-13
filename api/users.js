@@ -13,6 +13,10 @@ module.exports = function users(db) {
       return;
     }
 
+    // To this function, we need to add a check that body.password is set.
+    // It must be an 8 character-long string at a minimum. No additional
+    // requirements.
+
     // POST a new user. Not authenticated.
     usersCollection.findOne({ email: body.email }, (err, userDoc) => {
       if (err) {
@@ -146,9 +150,6 @@ const validateEmail = (email) => {
   return typeof email === "string" || emailRegEx.test(email);
 };
 
-// To this function, we need to add a check that body.password is set.
-// It must be an 8 character-long string at a minimum. No additional
-// requirements.
 const validateRequestBody = (body, res) => {
   if (typeof body !== 'object' || body === null || Array.isArray(body)) {
     res.json({ message: 'body expected to be an object' }).status(400);

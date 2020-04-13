@@ -78,6 +78,7 @@ module.exports.login = function login(db) {
     // 4. Use bcrypt.compare to check the provided password
     // 4a. If password comparison fails, return 401
     // 4b. If password comparison succeeds, create a JWT with { userId: user._id }
+    // res.json({ data: user, token: jwt });
   }
 }
 
