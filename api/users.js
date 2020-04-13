@@ -1,9 +1,12 @@
 const express = require("express");
 const auth = require("../auth");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 module.exports = function users(db) {
   const router = express.Router();
   const usersCollection = db.collection("users");
+  const credsCollection = db.collection("credentials");
 
   // POST
   router.post("/", function (req, res, next) {
@@ -11,11 +14,16 @@ module.exports = function users(db) {
 
     if(!validateRequestBody(req.body, res)) {
       return;
+    } else if (body.password < 9) {
+      res.json({ message: 'Password must be at least 8 characters in length' }).status(400);
+      return;
+    } else if (typeof body.password != "string") {
+      res.json({ message: 'Password type must be a string' }).status(400);
+      return;
+    } else if (body.password === null) {
+      res.json({ message: 'A password must be entered' }).status(400);
+      return;
     }
-
-    // To this function, we need to add a check that body.password is set.
-    // It must be an 8 character-long string at a minimum. No additional
-    // requirements.
 
     // POST a new user. Not authenticated.
     usersCollection.findOne({ email: body.email }, (err, userDoc) => {
@@ -43,6 +51,27 @@ module.exports = function users(db) {
             // 2. Create and insert a new document in the credentials collection
             // 3. Create a new JWT with { userId: results.ops[0]._id } and add
             // it to the response JSON as a new property called token
+
+            bcrypt.hash(body.password, 10, function(err, hash) {
+              if (err) {
+                next(err);
+              } else {
+                const newCreditialObj = {
+                  createdAt: new Date(),
+                  hashedPassword: hash,
+                  userId: results.ops[0]._id
+                };
+                credsCollection.insertOne(newCreditialObj, (err, resuslts) => {
+                  if (err) {
+                    next(err);
+                  } else {
+                    res.json({ message: 'Passowrd saved successfully' }).status(201); // <- Don't this this is allowed
+                  }
+                });
+              }
+            });
+
+            // Didn't return a JWT token yet
             res.json({ data: encodeUser(results.ops[0]) }).status(201);
           }
         });
