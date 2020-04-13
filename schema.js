@@ -1,49 +1,38 @@
 const dateSchema = { bsonType: "date" };
-const objectIdSchema = {
-  bsonType: "objectId",
-};
+const objectIdSchema = { bsonType: "objectId" };
+const stringSchema = { type: "string" };
 
 module.exports.userSchema = {
-    type: "object",
-  
-    required: ["createdAt", "email"],
-    properties: {
-      createdAt: dateSchema,
-      displayName: {
-        type: "string",
-      },
-      email: {
-        type: "string"
-      },
-    },
-  };
+  type: "object",
+  required: ["createdAt", "email"],
+  properties: {
+    createdAt: dateSchema,
+    displayName: stringSchema,
+    email: stringSchema
+  }
+};
 
-  module.exports.roomSchema = {
-    type: "object",
-  
-    required: ['createdAt', 'participants'],
-    properties: {
-      createdAt: {
-        bsonType: "date",
-      },
-      lastMessage: objectIdSchema,
-      participants: {
-        type: 'array',
-        uniqueItems: true,
-        items: objectIdSchema
-      },
-    },
-  };
+module.exports.roomSchema = {
+  type: "object",
+  required: ["createdAt", "participants"],
+  properties: {
+    createdAt: dateSchema,
+    lastMessage: objectIdSchema,
+    participants: {
+      type: "array",
+      uniqueItems: true,
+      items: objectIdSchema
+    }
+  }
+};
 
-  module.exports.messageSchema = {
-    type: "object",
-  
-    required: ['createdAt', 'authorId', 'text'],
-    properties: {
-      createdAt: dateSchema,
-      authorId: objectIdSchema,
-      text: {
-        type: 'string',
-      },
-    },
-  };
+module.exports.messageSchema = {
+  type: "object",
+  required: ["createdAt", "authorId", "roomId", "text"],
+  properties: {
+    createdAt: dateSchema,
+    authorId: objectIdSchema,
+    roomId: objectIdSchema,
+    text: stringSchema
+  }
+};
