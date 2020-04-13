@@ -30,7 +30,14 @@ async function main() {
     // Route middleware
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    // user API has one unsecured route (POST)
     app.use("/users", users(db));
+    // rooms and messages are all secured (they require a user to be logged in).
+    // We can pass the authenticate middleware to app.use before the router, and
+    // it will route the call through the middleware first before the router.
+    // The effect is that all routes in the rooms and messages APIs will need to
+    // have passed through the authenticate middleware before they can be
+    // called.
     app.use("/rooms", auth.authenticate, rooms(db));
     app.use("/messages", auth.authenticate, messages(db));
 

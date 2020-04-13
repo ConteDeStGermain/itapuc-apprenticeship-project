@@ -3,24 +3,17 @@ const auth = require("../auth");
 
 module.exports = function users(db) {
   const router = express.Router();
-
-  // You will be able to use this object to access the users collection in
-  // Mongo.
   const usersCollection = db.collection("users");
 
   // POST
   router.post("/", function (req, res, next) {
-    // 1. Validate the body
-    // 2. check for a user with the same email address
-    // 3. Create the user in Mongo
-    // 4. Send the response back
-
     const body = req.body;
 
     if(!validateRequestBody(req.body, res)) {
       return;
     }
 
+    // POST a new user. Not authenticated.
     usersCollection.findOne({ email: body.email }, (err, userDoc) => {
       if (err) {
         next(err);
@@ -47,8 +40,14 @@ module.exports = function users(db) {
     });
   });
 
+  // All other API endpoints require authentication - insert the middleware
+  // here.
   router.use(auth.authenticate);
 
+  // Param middleware which will automatically be invoked when express parses a
+  // route parameter for :userId. This approach is generally far preferable to
+  // handling the parameter in each handler that uses it - as it allow us to
+  // reduce code duplication and centralize the handling of the parameter.
   router.param("userId", function(req, res, next, userId) {
     try {
       userId = new ObjectId(userId);
@@ -58,7 +57,9 @@ module.exports = function users(db) {
       return;
     }
 
-    if (!user._id.equals(userId)) {
+    // Users can only operate on themselves (PUT / DELETE forbidden to other
+    // users).
+    if (!user._id.equals(userId) && req.method.toLowerCase() !== "get") {
       res.sendStatus(403);
       return;
     }
@@ -69,101 +70,50 @@ module.exports = function users(db) {
       } else if (!userDoc) {
         res.sendStatus(404);
       } else {
-        req.user = userDoc;
+        req.params.user = userDoc;
         next();
       }
     });
   });
 
-  // GET
+  // GET all users
   router.get("/", function (req, res) {
-    // 1. Load all users from Mongo
-    // 2. Send a response to the client
-
     usersCollection.find().toArray((err, userDocs) => {
       res.send({ data: userDocs.map(encodeUser) });
     });
   });
 
-  // GET:userID
+  // GET a user by ID
   router.get("/:userId", function (req, res, next) {
-    // 1. Load the user from the database with the given ID
-    // 2. Send the appropriate a response to the client
-
-    let userId = req.params.userId;
-
-    try {
-      userId = new ObjectId(userId);
-    } catch { }
-
-    usersCollection.findOne({ _id: userId }, (err, userDoc) => {
-      if (err) {
-        next(err);
-      } else if (userDoc) {
-        res.send({ data: encodeUser(userDoc) });
-      } else {
-        res.sendStatus(404);
-      }
-    });
+    res.json({ data: encodeUser(req.params.user) });
   });
 
-  // PUT:userId
+  // PUT a user
   router.put("/:userId", function (req, res, next) {
-    // 1. Validate the body
-    // 2. Load the user from the database with the given ID
-    // 3. Send a 404 if it doesn't exist
-    // 4. Update the displayName and email of the user in mongo
-    // 5. Send the response back
-
-    const userId = req.params.userId;
-
     const body = req.body;
 
     if(!validateRequestBody(req.body, res)) {
       return;
     }
 
-    usersCollection.findOne({ _id: userId }, (err, userDoc) => {
+    const newValues = { $set: { displayName: body.displayName, email: body.email } }
+
+    usersCollection.updateOne(req.params.user, newValues, (err, results) => {
       if (err) {
         next(err);
-      } else if (!userDoc) {
-        res.json({ message: 'The user does not exist' }).status(400);
       } else {
-        const newValues = { $set: { displayName: body.displayName, email: body.email } }
-
-        usersCollection.updateOne({ _id: userId }, newValues, (err, results) => {
-          if (err) {
-            next(err);
-          } else {
-            res.json({ data: encodeUser(results.ops[0]) }).status(200);
-          }
-        });
+        res.json({ data: encodeUser(results.ops[0]) }).status(200);
       }
     });
   });
 
-  // DELETE
+  // DELETE a user
   router.delete("/:userId", function (req, res, next) {
-    // 1. Load the user from the database with the given ID
-    // 2. Send a 404 if it doesn't exist
-    // 3. Delete the user from mongo
-    // 5. Send the response back
-
-    const userId = req.params.userId;
-
-    usersCollection.findOne({ _id: userId }, (err, userDoc) => {
+    usersCollection.deleteOne(req.params.user, (err) => {
       if (err) {
         next(err);
-      } else if (!userDoc) {
-        res.json({ message: 'The user does not exist' }).status(400);
       } else {
-        usersCollection.deleteOne({ _id: userId }, (err) => {
-          if (err) {
-            next(err);
-          } else {
-            res.sendStatus(200);
-          }
-        });
+        res.sendStatus(200);
       }
     });
   });
