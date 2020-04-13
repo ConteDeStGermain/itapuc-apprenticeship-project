@@ -33,6 +33,12 @@ module.exports = function users(db) {
           if (err) {
             next(err);
           } else {
+            // now we need to add a new record to the credentials collection
+            // with the hashed password.
+            // 1. Use bcrypt to hash the password
+            // 2. Create and insert a new document in the credentials collection
+            // 3. Create a new JWT with { userId: results.ops[0]._id } and add
+            // it to the response JSON as a new property called token
             res.json({ data: encodeUser(results.ops[0]) }).status(201);
           }
         });
@@ -140,6 +146,9 @@ const validateEmail = (email) => {
   return typeof email === "string" || emailRegEx.test(email);
 };
 
+// To this function, we need to add a check that body.password is set.
+// It must be an 8 character-long string at a minimum. No additional
+// requirements.
 const validateRequestBody = (body, res) => {
   if (typeof body !== 'object' || body === null || Array.isArray(body)) {
     res.json({ message: 'body expected to be an object' }).status(400);

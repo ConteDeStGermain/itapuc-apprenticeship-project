@@ -64,10 +64,27 @@ module.exports.authenticate = function authenticate(req, res, next) {
   }
 };
 
+module.exports.login = function login(db) {
+  const usersCollection = db.collection("users");
+  const credentialsCollection = db.collection("credentials");
+
+  return function loginHandler(req, res, next) {
+    // 1. Extract the email and password from the request body
+    // 1a. If email and password not provided (or not strings), return 400
+    // 2. Lookup the user by email
+    // 2a. If user not found, return 401
+    // 3. Lookup the hashed password by userId
+    // 3a. If password not found, return 401
+    // 4. Use bcrypt.compare to check the provided password
+    // 4a. If password comparison fails, return 401
+    // 4b. If password comparison succeeds, create a JWT with { userId: user._id }
+  }
+}
+
 function parseUser(req, cb) {
   const authHeaderValue = req.get("Authorization");
   if (authHeaderValue) {
-    // TODO replace this with JWT decoding
+    // 1. replace this with JWT decoding
     cb(null, { userId: req.get("Authorization") });
   } else {
     cb(null, null);
