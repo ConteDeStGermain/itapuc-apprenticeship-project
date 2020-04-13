@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongodb");
-
+var jwt = require('jsonwebtoken');
 /**
  * This function returns a middleware which will extract the User information
  * from the request. The information about the user is passed in via the
@@ -82,6 +82,8 @@ module.exports.login = function login(db) {
   }
 }
 
+module.exports.createJwt = createJwt;
+
 function parseUser(req, cb) {
   const authHeaderValue = req.get("Authorization");
   if (authHeaderValue) {
@@ -101,4 +103,8 @@ function lookupUser(usersCollection, userId, cb) {
     cb(null, null);
     return;
   }
+};
+
+function createJwt(user) {
+  return jwt.sign({ userId: user._id }, 'shhhhh');
 };

@@ -1,7 +1,7 @@
 const express = require("express");
 const auth = require("../auth");
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+
 
 module.exports = function users(db) {
   const router = express.Router();
@@ -14,16 +14,13 @@ module.exports = function users(db) {
 
     if(!validateRequestBody(req.body, res)) {
       return;
-    } else if (body.password < 9) {
-      res.json({ message: 'Password must be at least 8 characters in length' }).status(400);
-      return;
-    } else if (typeof body.password != "string") {
+    } else if (typeof body.password !== "string") {
       res.json({ message: 'Password type must be a string' }).status(400);
       return;
-    } else if (body.password === null) {
-      res.json({ message: 'A password must be entered' }).status(400);
+    } else if (body.password.length < 9) {
+      res.json({ message: 'Password must be at least 8 characters in length' }).status(400);
       return;
-    }
+    } 
 
     // POST a new user. Not authenticated.
     usersCollection.findOne({ email: body.email }, (err, userDoc) => {
@@ -61,18 +58,15 @@ module.exports = function users(db) {
                   hashedPassword: hash,
                   userId: results.ops[0]._id
                 };
-                credsCollection.insertOne(newCreditialObj, (err, resuslts) => {
+                credsCollection.insertOne(newCreditialObj, (err) => {
                   if (err) {
                     next(err);
                   } else {
-                    res.json({ message: 'Passowrd saved successfully' }).status(201); // <- Don't this this is allowed
+                    res.json({ data: encodeUser(results.ops[0]), token: createJwt(results.ops[0]) }).status(201);
                   }
                 });
               }
             });
-
-            // Didn't return a JWT token yet
-            res.json({ data: encodeUser(results.ops[0]) }).status(201);
           }
         });
       }
