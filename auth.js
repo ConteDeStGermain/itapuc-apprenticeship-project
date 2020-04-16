@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 var jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 /**
  * This function returns a middleware which will extract the User information
  * from the request. The information about the user is passed in via the
@@ -79,6 +80,40 @@ module.exports.login = function login(db) {
     // 4a. If password comparison fails, return 401
     // 4b. If password comparison succeeds, create a JWT with { userId: user._id }
     // res.json({ data: user, token: jwt });
+    let bodyEmail = req.body.email;
+    let bodyPassword = req.body.password;
+
+    if (typeof bodyEmail !== "string" || typeof bodyPassword !== "string"){
+      res.sendStatus(400);
+      return;
+    }
+    
+    usersCollection.findOne({ email: bodyEmail }, (err, results) => {
+      if (err) {
+        res.sendStatus(400);
+      } else if (!results) {
+        res.sendStatus(401);
+      } else {
+        credentialsCollection.findOne({ hashedPassword: bodyPassword }, (err, results) => {
+          if (err) {
+            res.sendStatus(400);
+          } else if (!results) {
+            res.sendStatus(401);
+          } else {
+            bcrypt.compare(bodyPassword, results, (err, result) => {
+                if (err) {
+                  res.sendStatus(400);
+                } else if (!result) {
+                  res.sendStatus(401);
+                } else {
+                  res.json({ data: user, token: createJwt(user)}); // <- Awaiting Jamie's Answer
+                }
+            });
+          }
+        })
+      }
+    })
+
   }
 }
 
@@ -87,8 +122,17 @@ module.exports.createJwt = createJwt;
 function parseUser(req, cb) {
   const authHeaderValue = req.get("Authorization");
   if (authHeaderValue) {
-    // 1. replace this with JWT decoding
-    cb(null, { userId: req.get("Authorization") });
+    // 1. replace this with jwt.verify
+
+    jwt.verify(authHeaderValue, 'shhhhh', function(err, decoded) {
+      if (err){
+        console.log('Error in parseUser ' + err);
+      } else if (decoded === undefined) {
+        console.log('Decoded is undefined');
+      } else {
+        cb(null, { userId: req.get("Authorization") }); // Don't think this is right
+      }
+    });
   } else {
     cb(null, null);
   }

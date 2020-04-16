@@ -2,7 +2,6 @@ const express = require("express");
 const auth = require("../auth");
 const bcrypt = require('bcrypt');
 
-
 module.exports = function users(db) {
   const router = express.Router();
   const usersCollection = db.collection("users");
@@ -53,16 +52,18 @@ module.exports = function users(db) {
               if (err) {
                 next(err);
               } else {
+                const user = results.ops[0];
+
                 const newCreditialObj = {
                   createdAt: new Date(),
                   hashedPassword: hash,
-                  userId: results.ops[0]._id
+                  userId: user._id
                 };
                 credsCollection.insertOne(newCreditialObj, (err) => {
                   if (err) {
                     next(err);
                   } else {
-                    res.json({ data: encodeUser(results.ops[0]), token: createJwt(results.ops[0]) }).status(201);
+                    res.json({ data: encodeUser(user), token: auth.createJwt(user) }).status(201);
                   }
                 });
               }
