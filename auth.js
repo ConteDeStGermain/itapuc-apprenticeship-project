@@ -127,6 +127,9 @@ function parseUser(req, cb) {
   if (authHeaderValue) {
     // 1. replace this with jwt.verify
     jwt.verify(authHeaderValue, 'shhhhh', cb);
+  } else {
+    cb(null, null);
+  }
 }
 
 function lookupUser(usersCollection, userId, cb) {
