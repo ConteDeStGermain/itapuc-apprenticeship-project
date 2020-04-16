@@ -126,16 +126,7 @@ function parseUser(req, cb) {
   const authHeaderValue = req.get("Authorization");
   if (authHeaderValue) {
     // 1. replace this with jwt.verify
-    jwt.verify(authHeaderValue, 'shhhhh', function(err, decoded) {
-      if (err){
-        cb(err, null);
-      } else {
-        cb(null, decoded);
-      }
-    });
-  } else {
-    cb(null, null);
-  }
+    jwt.verify(authHeaderValue, 'shhhhh', cb);
 }
 
 function lookupUser(usersCollection, userId, cb) {
