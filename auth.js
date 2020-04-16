@@ -83,30 +83,33 @@ module.exports.login = function login(db) {
     let bodyEmail = req.body.email;
     let bodyPassword = req.body.password;
 
-    if (typeof bodyEmail !== "string" || typeof bodyPassword !== "string"){
-      res.sendStatus(400);
+    if (typeof bodyEmail !== "string"){
+      res.json({ message: "email required" }).status(400);
+      return;
+    } else if (typeof bodyPassword !== "string"){
+      res.json({ message: "password required" }).status(400);
       return;
     }
     
-    usersCollection.findOne({ email: bodyEmail }, (err, results) => {
+    usersCollection.findOne({ email: bodyEmail }, (err, user) => {
       if (err) {
-        res.sendStatus(400);
-      } else if (!results) {
+        next(err);
+      } else if (!user) {
         res.sendStatus(401);
       } else {
-        credentialsCollection.findOne({ hashedPassword: bodyPassword }, (err, results) => {
+        credentialsCollection.findOne({ userId: user._id }, (err, credential) => {
           if (err) {
-            res.sendStatus(400);
-          } else if (!results) {
+            next(err);
+          } else if (!credential) {
             res.sendStatus(401);
           } else {
-            bcrypt.compare(bodyPassword, results, (err, result) => {
+            bcrypt.compare(bodyPassword, credential.hashedPassword, (err, result) => {
                 if (err) {
-                  res.sendStatus(400);
+                  next(err);
                 } else if (!result) {
                   res.sendStatus(401);
                 } else {
-                  res.json({ data: user, token: createJwt(user)}); // <- Awaiting Jamie's Answer
+                  res.json({ data: user, token: createJwt(user)});
                 }
             });
           }
@@ -123,14 +126,11 @@ function parseUser(req, cb) {
   const authHeaderValue = req.get("Authorization");
   if (authHeaderValue) {
     // 1. replace this with jwt.verify
-
     jwt.verify(authHeaderValue, 'shhhhh', function(err, decoded) {
       if (err){
-        console.log('Error in parseUser ' + err);
-      } else if (decoded === undefined) {
-        console.log('Decoded is undefined');
+        cb(err, null);
       } else {
-        cb(null, { userId: req.get("Authorization") }); // Don't think this is right
+        cb(null, decoded);
       }
     });
   } else {
