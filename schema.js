@@ -36,3 +36,13 @@ module.exports.messageSchema = {
     text: stringSchema
   }
 };
+
+module.exports.credentialsSchema = {
+  type: "object",
+  required: ["createdAt", "hashedPassword"],
+  properties: {
+    createdAt: dateSchema,
+    hashedPassword: stringSchema,
+    userId: objectIdSchema
+  }
+};

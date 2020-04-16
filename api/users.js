@@ -1,9 +1,11 @@
 const express = require("express");
 const auth = require("../auth");
+const bcrypt = require('bcrypt');
 
 module.exports = function users(db) {
   const router = express.Router();
   const usersCollection = db.collection("users");
+  const credsCollection = db.collection("credentials");
 
   // POST
   router.post("/", function (req, res, next) {
@@ -11,7 +13,13 @@ module.exports = function users(db) {
 
     if(!validateRequestBody(req.body, res)) {
       return;
-    }
+    } else if (typeof body.password !== "string") {
+      res.json({ message: 'Password type must be a string' }).status(400);
+      return;
+    } else if (body.password.length < 9) {
+      res.json({ message: 'Password must be at least 8 characters in length' }).status(400);
+      return;
+    } 
 
     // POST a new user. Not authenticated.
     usersCollection.findOne({ email: body.email }, (err, userDoc) => {
@@ -33,7 +41,33 @@ module.exports = function users(db) {
           if (err) {
             next(err);
           } else {
-            res.json({ data: encodeUser(results.ops[0]) }).status(201);
+            // now we need to add a new record to the credentials collection
+            // with the hashed password.
+            // 1. Use bcrypt to hash the password
+            // 2. Create and insert a new document in the credentials collection
+            // 3. Create a new JWT with { userId: results.ops[0]._id } and add
+            // it to the response JSON as a new property called token
+
+            bcrypt.hash(body.password, 10, function(err, hash) {
+              if (err) {
+                next(err);
+              } else {
+                const user = results.ops[0];
+
+                const newCreditialObj = {
+                  createdAt: new Date(),
+                  hashedPassword: hash,
+                  userId: user._id
+                };
+                credsCollection.insertOne(newCreditialObj, (err) => {
+                  if (err) {
+                    next(err);
+                  } else {
+                    res.json({ data: encodeUser(user), token: auth.createJwt(user) }).status(201);
+                  }
+                });
+              }
+            });
           }
         });
       }

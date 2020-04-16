@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
-
+var jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 /**
  * This function returns a middleware which will extract the User information
  * from the request. The information about the user is passed in via the
@@ -64,11 +65,68 @@ module.exports.authenticate = function authenticate(req, res, next) {
   }
 };
 
+module.exports.login = function login(db) {
+  const usersCollection = db.collection("users");
+  const credentialsCollection = db.collection("credentials");
+
+  return function loginHandler(req, res, next) {
+    // 1. Extract the email and password from the request body
+    // 1a. If email and password not provided (or not strings), return 400
+    // 2. Lookup the user by email
+    // 2a. If user not found, return 401
+    // 3. Lookup the hashed password by userId
+    // 3a. If password not found, return 401
+    // 4. Use bcrypt.compare to check the provided password
+    // 4a. If password comparison fails, return 401
+    // 4b. If password comparison succeeds, create a JWT with { userId: user._id }
+    // res.json({ data: user, token: jwt });
+    let bodyEmail = req.body.email;
+    let bodyPassword = req.body.password;
+
+    if (typeof bodyEmail !== "string"){
+      res.json({ message: "email required" }).status(400);
+      return;
+    } else if (typeof bodyPassword !== "string"){
+      res.json({ message: "password required" }).status(400);
+      return;
+    }
+    
+    usersCollection.findOne({ email: bodyEmail }, (err, user) => {
+      if (err) {
+        next(err);
+      } else if (!user) {
+        res.sendStatus(401);
+      } else {
+        credentialsCollection.findOne({ userId: user._id }, (err, credential) => {
+          if (err) {
+            next(err);
+          } else if (!credential) {
+            res.sendStatus(401);
+          } else {
+            bcrypt.compare(bodyPassword, credential.hashedPassword, (err, result) => {
+                if (err) {
+                  next(err);
+                } else if (!result) {
+                  res.sendStatus(401);
+                } else {
+                  res.json({ data: user, token: createJwt(user)});
+                }
+            });
+          }
+        })
+      }
+    })
+
+  }
+}
+
+module.exports.createJwt = createJwt;
+
 function parseUser(req, cb) {
   const authHeaderValue = req.get("Authorization");
   if (authHeaderValue) {
-    // TODO replace this with JWT decoding
-    cb(null, { userId: req.get("Authorization") });
+    // 1. replace this with jwt.verify
+    jwt.verify(authHeaderValue, 'shhhhh', cb);
   } else {
     cb(null, null);
   }
@@ -83,4 +141,8 @@ function lookupUser(usersCollection, userId, cb) {
     cb(null, null);
     return;
   }
+};
+
+function createJwt(user) {
+  return jwt.sign({ userId: user._id }, 'shhhhh');
 };

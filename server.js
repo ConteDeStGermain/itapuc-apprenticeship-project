@@ -30,6 +30,7 @@ async function main() {
     // Route middleware
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    app.post("/login", auth.login(db));
     // user API has one unsecured route (POST)
     app.use("/users", users(db));
     // rooms and messages are all secured (they require a user to be logged in).
