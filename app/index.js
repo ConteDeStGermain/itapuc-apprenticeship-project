@@ -9,13 +9,17 @@ import Login from './components/Login';
 // token and user
 // users: an array of users
 
-function App() {
+const App = () => {
   const [messages, setMessages] = useState({});
   const [rooms, setRooms] = useState([]);
   const [session, setSession] = useState();
   const [users, setUsers] = useState([]);
 
-  return <Login />;
+  return (
+    <div>
+      <Login />
+    </div>
+    );
 }
 
 const appNode = document.getElementById("app");
