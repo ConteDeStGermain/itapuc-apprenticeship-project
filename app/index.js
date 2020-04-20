@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
+import Login from './components/Login';
 
 // App state:
 // messages: an object which maps room IDs to arrays of messages
@@ -14,7 +15,7 @@ function App() {
   const [session, setSession] = useState();
   const [users, setUsers] = useState([]);
 
-  return <div>Write the app here</div>;
+  return <Login />;
 }
 
 const appNode = document.getElementById("app");
