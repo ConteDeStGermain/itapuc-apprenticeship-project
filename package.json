@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Building the backend of a messaging web app.",
   "main": "server.js",
-  "script": {
-    "start": "node server.js"
+  "scripts": {
+    "start": "node server.js",
+    "bundle": "parcel index.html"
   },
   "repository": {
     "type": "git",
