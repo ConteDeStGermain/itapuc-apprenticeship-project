@@ -1,0 +1,8 @@
+#loginSegment {
+    width: 500px;
+    position: absolute;
+    top: 40%;
+    transform: translateY(-60%);
+    left: 50%;
+    transform: translateX(-50%);
+}

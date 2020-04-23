@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Login from './components/Login';
 
+import 'semantic-ui-css/semantic.min.css';
+
 // App state:
 // messages: an object which maps room IDs to arrays of messages
 // rooms: an array of rooms for the logged in user
