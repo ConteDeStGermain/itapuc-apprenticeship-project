@@ -1,0 +1,10 @@
+#createAccSegment{
+    width: 500px;
+    position: absolute;
+    top: 40%;
+    transform: translateY(-60%);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgb(0,36,29);
+    background: linear-gradient(48deg, rgba(0,36,29,1) 0%, rgba(28,119,95,1) 35%, rgba(0,255,233,1) 100%);
+}

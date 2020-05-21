@@ -1,6 +1,7 @@
 const bodyParser = require("body-parser");
 const { Server } = require("http");
 const socketIO = require("socket.io");
+const cors = require("cors");
 const connect = require("./db");
 const express = require("express");
 const morgan = require("morgan");
@@ -29,6 +30,8 @@ async function main() {
 
     // Extract the user's session information from the request if present
     app.use(auth.session(db));
+    
+    app.use(cors());
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Route middleware
