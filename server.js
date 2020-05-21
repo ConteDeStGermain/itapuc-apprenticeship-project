@@ -1,4 +1,6 @@
 const bodyParser = require("body-parser");
+const { Server } = require("http");
+const socketIO = require("socket.io");
 const connect = require("./db");
 const express = require("express");
 const morgan = require("morgan");
@@ -11,6 +13,8 @@ const auth = require("./auth");
 async function main() {
   try {
     const app = express();
+    const server = Server(app);
+    const io = socketIO(server);
     const { db, client } = await connect();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,7 +57,7 @@ async function main() {
       console.error(error);
     });
 
-    const server = app.listen(8082, () => {
+    server.listen(8082, () => {
       console.log('Server is listening on port 8082')
     });
 
