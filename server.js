@@ -61,6 +61,16 @@ async function main() {
       console.log('Server is listening on port 8082')
     });
 
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Configure socket.io handler
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    io.use(auth.socketSession(db));
+
+    io.on("connection", function handleConnection(socket) {
+      socket.join(socket.user._idi.toString());
+    });
+
     return { server, client };
   } catch(error) {
     console.log(error);
