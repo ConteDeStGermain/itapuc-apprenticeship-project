@@ -1,0 +1,5 @@
+#createAccSegment{
+    width: 500px;
+    background: rgb(0,36,29);
+    background: linear-gradient(48deg, rgba(0,36,29,1) 0%, rgba(28,119,95,1) 35%, rgba(0,255,233,1) 100%);
+}

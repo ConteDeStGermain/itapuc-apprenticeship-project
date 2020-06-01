@@ -14,10 +14,10 @@ module.exports = function users(db) {
     if(!validateRequestBody(req.body, res)) {
       return;
     } else if (typeof body.password !== "string") {
-      res.json({ message: 'Password type must be a string' }).status(400);
+      res.status(400).json({ message: 'Password type must be a string' });
       return;
     } else if (body.password.length < 9) {
-      res.json({ message: 'Password must be at least 8 characters in length' }).status(400);
+      res.status(400).json({ message: 'Password must be at least 8 characters in length' });
       return;
     } 
 
@@ -26,7 +26,7 @@ module.exports = function users(db) {
       if (err) {
         next(err);
       } else if (userDoc) {
-        res.json({ message: 'email already exists' }).status(400);
+        res.status(400).json({ message: 'email already exists' });
       } else {
         const newUser = {
           createdAt: new Date(),
@@ -63,7 +63,7 @@ module.exports = function users(db) {
                   if (err) {
                     next(err);
                   } else {
-                    res.json({ data: encodeUser(user), token: auth.createJwt(user) }).status(201);
+                    res.status(201).json({ data: encodeUser(user), token: auth.createJwt(user) });
                   }
                 });
               }
@@ -136,7 +136,7 @@ module.exports = function users(db) {
       if (err) {
         next(err);
       } else {
-        res.json({ data: encodeUser(results.ops[0]) }).status(200);
+        res.status(200).json({ data: encodeUser(results.ops[0]) });
       }
     });
   });
@@ -176,13 +176,13 @@ const validateEmail = (email) => {
 
 const validateRequestBody = (body, res) => {
   if (typeof body !== 'object' || body === null || Array.isArray(body)) {
-    res.json({ message: 'body expected to be an object' }).status(400);
+    res.status(400).json({ message: 'body expected to be an object' });
     return false;
   } else if(!validateEmail(body.email)) {
-    res.json({ message: 'email not valid' }).status(400);
+    res.status(400).json({ message: 'email not valid' });
     return false;
   } else if (!validateDisplayName(body.displayName)) {
-    res.json({ message: 'display name has to be a string' }).status(400);
+    res.status(400).json({ message: 'display name has to be a string' });
     return false;
   } else {
     return true;

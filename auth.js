@@ -123,10 +123,10 @@ module.exports.login = function login(db) {
     let bodyPassword = req.body.password;
 
     if (typeof bodyEmail !== "string"){
-      res.json({ message: "email required" }).status(400);
+      res.status(400).json({ message: "email required" });
       return;
     } else if (typeof bodyPassword !== "string"){
-      res.json({ message: "password required" }).status(400);
+      res.status(400).json({ message: "password required" });
       return;
     }
     
