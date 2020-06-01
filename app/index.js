@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import Login from './components/Login';
-import CreateAccount from './components/CreateAccount';
+import Auth from './components/Auth';
 import Main from './components/Main';
 
 import 'semantic-ui-css/semantic.min.css';
@@ -15,10 +14,8 @@ import './CSS/general.css';
 // users: an array of users
 
 const App = () => {
-  const [messages, setMessages] = useState({});
-  const [rooms, setRooms] = useState([]);
   const [session, setSession] = useState();
-  const [users, setUsers] = useState([]);
+  
 
   useEffect (() => {
     const token = localStorage.getItem('token');
@@ -41,11 +38,10 @@ const App = () => {
     // Conditionally render the main app or the login screen accordingly
   return (
     <div>
-      <Main />
-      {/* <Login onAuthenticated={({ data, token }) => {
-          setSession({ user: data, token });
-        }} 
-      /> */}
+      { session 
+        ? <Main session={session} onLogout /> 
+        : <Auth onAuthenticated={({ data, token }) => {setSession({ user: data, token });}} /> 
+      }
     </div>
     );
 }
