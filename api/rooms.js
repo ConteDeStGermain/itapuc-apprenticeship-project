@@ -2,7 +2,7 @@ const express = require("express");
 const { ObjectId } = require("mongodb");
 const { encodeMessage, validateBody } = require("./messages");
 
-module.exports = function rooms(db) {
+module.exports = function rooms(db, io) {
   const router = express.Router();
 
   const messagesCollection = db.collection("messages");
@@ -124,7 +124,10 @@ module.exports = function rooms(db) {
           if (err) {
             next(err);
           } else {
-            res.json({ data: encodeMessage(newMessage) }).status(201);
+            const data = encodeMessage(newMessage);
+            res.json({ data }).status(201);
+            const otherUser = room.participants.find(id => !user._id.equals(id));
+            io.of("/messages").to(otherUser.toString()).emit("new-message", data);
           }
         });
       }

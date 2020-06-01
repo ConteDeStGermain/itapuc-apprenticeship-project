@@ -43,7 +43,7 @@ async function main() {
     // The effect is that all routes in the rooms and messages APIs will need to
     // have passed through the authenticate middleware before they can be
     // called.
-    app.use("/rooms", auth.authenticate, rooms(db));
+    app.use("/rooms", auth.authenticate, rooms(db, io));
     app.use("/messages", auth.authenticate, messages(db));
 
     // Handle all unhandled routes with a 404
