@@ -25,32 +25,71 @@ module.exports.session = function session(db) {
   const usersCollection = db.collection("users");
 
   return function(req, res, next) {
-    // Get the user info from the request
-    parseUser(req, function (puErr, puResult) {
-      if (puErr) {
-        next(puErr);
-      } else if (!puResult) {
-        // If no user information couldbe found on the request, pass control to
-        // the next middleware in the chain.
+    const token = req.get("Authorization");
+    // If no user information couldbe found on the request, pass control to
+    // the next middleware in the chain.
+    const onNoAuth = next;
+    const onError = next;
+    const onResult = user => {
+      if (user) {
+        // A user was found, add it to the req and continue handling the
+        // request.
+        req.user = user;
         next();
       } else {
-        // Lookup the user
-        lookupUser(usersCollection, puResult.userId, function(luErr, luResult) {
-          if (luErr) {
-            next(luErr);
-          } else if (luResult) {
-            // A user was found, add it to the req and continue handling the
-            // request.
-            req.user = luResult;
-            next();
-          } else {
-            // No user was found, respond with a 401
-            res.sendStatus(401);
-          }
-        });
+        // No user was found, respond with a 401
+        req.sendStatus(401);
       }
-    });
+    }
+
+    getSession(usersCollection, token, onNoAuth, onError, onResult);
   }
+}
+
+module.exports.socketSession = function socketSession(db) {
+  const usersCollection = db.collection("users");
+
+  return function(socket, next) {
+    const { token } = socket.handshake.query;
+    // If no user information couldbe found on the request do not continue
+    const onNoAuth = () => {
+      socket.disconnect(true);
+    };
+    const onError = next;
+    const onResult = user => {
+      if (user) {
+        // A user was found, add it to the socket and continue handling the
+        // request.
+        socket.user = user;
+        next();
+      } else {
+        // No user was found, disconnect
+        socket.disconnect(true);
+      }
+    }
+
+    getSession(usersCollection, token, onNoAuth, onError, onResult);
+  }
+}
+
+function getSession(usersCollection, token, onNoAuth, onError, onResult) {
+  // Get the user info from the request
+  parseUser(token, function (puErr, puResult) {
+    if (puErr) {
+      onError(puErr);
+    } else if (!puResult) {
+      onNoAuth();
+    } else {
+      // Lookup the user
+      lookupUser(usersCollection, puResult.userId, function(luErr, luResult) {
+        if (luErr) {
+          onError(luErr);
+        } else {
+          onResult(luResult);
+        }
+      });
+    }
+  });
 }
 
 /**
@@ -122,11 +161,9 @@ module.exports.login = function login(db) {
 
 module.exports.createJwt = createJwt;
 
-function parseUser(req, cb) {
-  const authHeaderValue = req.get("Authorization");
-  if (authHeaderValue) {
-    // 1. replace this with jwt.verify
-    jwt.verify(authHeaderValue, 'shhhhh', cb);
+function parseUser(token, cb) {
+  if (token) {
+    jwt.verify(token, 'shhhhh', cb);
   } else {
     cb(null, null);
   }

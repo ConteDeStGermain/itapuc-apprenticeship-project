@@ -1,4 +1,6 @@
 const bodyParser = require("body-parser");
+const { Server } = require("http");
+const socketIO = require("socket.io");
 const connect = require("./db");
 const express = require("express");
 const morgan = require("morgan");
@@ -11,6 +13,8 @@ const auth = require("./auth");
 async function main() {
   try {
     const app = express();
+    const server = Server(app);
+    const io = socketIO(server);
     const { db, client } = await connect();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +43,7 @@ async function main() {
     // The effect is that all routes in the rooms and messages APIs will need to
     // have passed through the authenticate middleware before they can be
     // called.
-    app.use("/rooms", auth.authenticate, rooms(db));
+    app.use("/rooms", auth.authenticate, rooms(db, io));
     app.use("/messages", auth.authenticate, messages(db));
 
     // Handle all unhandled routes with a 404
@@ -53,8 +57,18 @@ async function main() {
       console.error(error);
     });
 
-    const server = app.listen(8082, () => {
+    server.listen(8082, () => {
       console.log('Server is listening on port 8082')
+    });
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Configure socket.io handler
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    io.use(auth.socketSession(db));
+
+    io.on("connection", function handleConnection(socket) {
+      socket.join(socket.user._idi.toString());
     });
 
     return { server, client };
