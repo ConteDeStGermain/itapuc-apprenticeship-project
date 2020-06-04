@@ -63,13 +63,13 @@ module.exports = function rooms(db, io) {
       if (error) {
         next(error);
       } else if (count !== userIds.length) {
-        res.json({ message: "Invalid user IDs" }).status(400);
+        res.status(400).json({ message: "Invalid user IDs" });
       } else {
         roomsCollection.insertOne({ createdAt: new Date(), participants: userIds }, (err, results) => {
           if (err) {
             next(err);
           } else {
-            res.json({ data: encodeRoom(results.ops[0]) }).status(201);
+            res.status(201).json({ data: encodeRoom(results.ops[0]) });
           }
         });
       }

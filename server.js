@@ -32,6 +32,7 @@ async function main() {
     app.use(auth.session(db));
     
     app.use(cors());
+    app.disable('etag');
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Route middleware

@@ -1,0 +1,26 @@
+#roomBox {
+  display: flex;
+  flex-direction: column;
+  height: 95%;
+  
+  overflow-y: scroll;
+}
+
+#messages {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.ui.input.inputMsg {
+  width: 85% !important;
+}
+
+#inputArea {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;  
+  position: absolute;
+  bottom: 15px;
+  left: 0px;
+}

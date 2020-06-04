@@ -1,0 +1,24 @@
+.sentMsg {
+  width: fit-content;
+  padding: 25px;
+  min-height: 25px;
+  background-color: #2be35c;
+  color: aliceblue;
+  align-self: flex-end;
+  font-size: 1.1em;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.receivedMsg {
+  width: fit-content;
+  padding: 25px;
+  min-height: 25px;
+  background-color: #e8e8e8;
+  align-self: flex-start;
+  font-size: 1.1em;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
