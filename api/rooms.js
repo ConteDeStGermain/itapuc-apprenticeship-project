@@ -129,7 +129,7 @@ module.exports = function rooms(db, io) {
             const otherUser = room.participants.find(id => !user._id.equals(id));
             console.log(room.participants);
             console.log(otherUser);
-            io.of("/messages").to(otherUser.toString()).emit("new-message", data);
+            io.to(otherUser.toString()).emit("new-message", data);
           }
         });
       }

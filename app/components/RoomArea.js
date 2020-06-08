@@ -39,7 +39,7 @@ const RoomArea = ({
   };
 
   useEffect(() => {
-    const socket = io.connect(`${apiHost}/messages?token=${session.token}`);
+    const socket = io.connect(`${apiHost}?token=${session.token}`);
     socket.on("new-message", (data) => {
       console.log(data);
     });
