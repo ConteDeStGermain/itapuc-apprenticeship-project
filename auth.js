@@ -148,7 +148,7 @@ module.exports.login = function login(db) {
                 } else if (!result) {
                   res.sendStatus(401);
                 } else {
-                  res.json({ data: user, token: createJwt(user)});
+                  res.json({ data: encodeUser(user), token: createJwt(user)});
                 }
             });
           }
@@ -183,3 +183,12 @@ function lookupUser(usersCollection, userId, cb) {
 function createJwt(user) {
   return jwt.sign({ userId: user._id }, 'shhhhh');
 };
+
+function encodeUser(document) {
+  return { 
+    id: document._id,
+    createdAt: document.createdAt,
+    displayName: document.displayName,
+    email: document.email
+  };
+}

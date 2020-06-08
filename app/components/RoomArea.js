@@ -95,7 +95,7 @@ const RoomArea = ({
             return (
               <Message
                 text={msg.text}
-                isSent={session.user._id === msg.authorId}
+                isSent={session.user.id === msg.authorId}
               />
             );
           })}
