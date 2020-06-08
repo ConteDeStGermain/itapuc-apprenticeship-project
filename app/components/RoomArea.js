@@ -1,96 +1,118 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Grid, Input, Button } from 'semantic-ui-react';
-import Message from './Message';
+import React, { useEffect, useState, useRef } from "react";
+import { Grid, Input, Button } from "semantic-ui-react";
+import Message from "./Message";
 
-import '../CSS/room.css';
+import "../CSS/room.css";
 
-const RoomArea = ({ apiHost, session, roomId, chattingUserId, headers, onNewRoom }) => {
-  const message = useRef('');
+const RoomArea = ({
+  apiHost,
+  session,
+  roomId,
+  chattingUserId,
+  headers,
+  onNewRoom,
+}) => {
+  const message = useRef("");
   const [messages, setMessages] = useState([]);
 
   // TODO: Connect to socket.io
   const loadMessages = async () => {
-    if(!roomId) {
+    if (!roomId) {
       return;
     }
 
     try {
-        const messagesResponse = await fetch(`${apiHost}/rooms/${roomId}/messages`, { headers } );
+      const messagesResponse = await fetch(
+        `${apiHost}/rooms/${roomId}/messages`,
+        { headers }
+      );
 
-        if (messagesResponse.ok) {
-           setMessages(await messagesResponse.json().then(({data}) => data));
-        } else {
-           console.error("Failed to load messages", await messagesResponse.text());
-        }
-        
+      if (messagesResponse.ok) {
+        setMessages(await messagesResponse.json().then(({ data }) => data));
+      } else {
+        console.error("Failed to load messages", await messagesResponse.text());
+      }
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
-  }
+  };
 
-  useEffect (() => { loadMessages() }, [session]);
+  useEffect(() => {
+    loadMessages();
+  }, [session]);
 
   const handleSend = async () => {
     const localMsg = message.current;
     let localRoomId = roomId;
 
-    if (localMsg === '') {
+    if (localMsg === "") {
       return;
     } else if (!localRoomId) {
-      const postRoomResponse = await fetch(`${apiHost}/rooms/`, 
-        { 
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ participants:  [chattingUserId] })
-        }
-      )
+      const postRoomResponse = await fetch(`${apiHost}/rooms`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ participants: [chattingUserId] }),
+      });
       if (postRoomResponse.ok) {
         const { data: room } = await postRoomResponse.json();
         localRoomId = room.id;
         onNewRoom(room);
       } else {
-        console.error("Failed to create room with new user", await postRoomResponse.text());
+        console.error(
+          "Failed to create room with new user",
+          await postRoomResponse.text()
+        );
         return;
       }
-
     }
 
-    const postMsgResponse = await fetch(`${apiHost}/rooms/${localRoomId}/messages`, 
-      { 
-        method: 'POST',
+    const postMsgResponse = await fetch(
+      `${apiHost}/rooms/${localRoomId}/messages`,
+      {
+        method: "POST",
         headers,
-        body: JSON.stringify({ text: localMsg })
+        body: JSON.stringify({ text: localMsg }),
       }
-    )
+    );
 
     if (postMsgResponse.ok) {
       const { data: msg } = await postMsgResponse.json();
       setMessages([...messages, msg]);
-      message.current = '';
+      message.current = "";
     } else {
-      console.error("Failed to send message to user", await postMsgResponse.text())
+      console.error(
+        "Failed to send message to user",
+        await postMsgResponse.text()
+      );
     }
-
   };
 
   return (
     <React.Fragment>
-        <div id="roomBox">
-          <div id='messages'>
-
-            { 
-              messages.map((msg) => {
-                return <Message text={msg.text} isSent={session.user._id === msg.authorId} />
-              })
-            }
-          </div>
+      <div id="roomBox">
+        <div id="messages">
+          {messages.map((msg) => {
+            return (
+              <Message
+                text={msg.text}
+                isSent={session.user._id === msg.authorId}
+              />
+            );
+          })}
         </div>
-        <div id='inputArea'>
-          <Input onChange={(e) => message.current = e.target.value} className='inputMsg' placehodler="Say hi..."/> 
-          <Button onClick={ handleSend } color='blue'>Send</Button>
-        </div>
+      </div>
+      <div id="inputArea">
+        <Input
+          onChange={(e) => (message.current = e.target.value)}
+          className="inputMsg"
+          placehodler="Say hi..."
+        />
+        <Button onClick={handleSend} color="blue">
+          Send
+        </Button>
+      </div>
     </React.Fragment>
-  )
-}
+  );
+};
 
 export default RoomArea;
