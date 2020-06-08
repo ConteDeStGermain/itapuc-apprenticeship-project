@@ -53,6 +53,8 @@ async function main() {
     app.use("/rooms", auth.authenticate, rooms(db, io));
     app.use("/messages", auth.authenticate, messages(db));
 
+    app.use(express.static("dist"));
+
     // Handle all unhandled routes with a 404
     app.use("*", function (req, res) {
       res.sendStatus(404);
