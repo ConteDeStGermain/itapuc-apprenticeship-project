@@ -10,27 +10,31 @@ const rooms = require("./api/rooms");
 const messages = require("./api/messages");
 const auth = require("./auth");
 
+const port = process.env.PORT || 8082;
+const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017";
+const dbName = process.env.MONGO_DB || "messenger";
+
 // Entry point or our application
 async function main() {
   try {
     const app = express();
     const server = Server(app);
     const io = socketIO(server);
-    const { db, client } = await connect();
+    const { db, client } = await connect(url, dbName);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Global middleware
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Log all requests and responses to console
-    app.use(morgan('tiny'));
+    app.use(morgan("tiny"));
 
     // Parse request body as json (ContentType: application/json)
     app.use(bodyParser.json());
 
     // Extract the user's session information from the request if present
     app.use(auth.session(db));
-    
+
     app.use(cors());
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,13 +59,13 @@ async function main() {
     });
 
     // Avoid sending stack traces with express by using error-handling middleware
-    app.use(function middleware(error, req, res, next ) {
-      res.send(process.env.NODE_ENV === 'debug' ? error: null).status(500);
+    app.use(function middleware(error, req, res, next) {
+      res.send(process.env.NODE_ENV === "debug" ? error : null).status(500);
       console.error(error);
     });
 
-    server.listen(8082, () => {
-      console.log('Server is listening on port 8082')
+    server.listen(port, () => {
+      console.log(`Server is listening on port ${port}`);
     });
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,7 +79,7 @@ async function main() {
     });
 
     return { server, client };
-  } catch(error) {
+  } catch (error) {
     console.log(error);
   }
 }
@@ -84,7 +88,7 @@ main().then(({ server, client }) => {
   process.on("SIGTERM", shutDown);
   process.on("SIGINT", shutDown);
 
-  function shutDown () {
+  function shutDown() {
     console.log("Received kill signal, shutting down gracefully");
     server.close();
     client.close();

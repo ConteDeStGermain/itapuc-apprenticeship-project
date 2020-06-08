@@ -1,12 +1,7 @@
 const { MongoClient } = require("mongodb");
 const { userSchema, roomSchema, messageSchema, credentialsSchema } = require("./schema");
 
-module.exports = async function connect() {
-
-  const url = "mongodb://localhost:27017";
-
-  const dbName = "messenger";
-
+module.exports = async function connect(url, dbName) {
 
   const client = await MongoClient.connect(url, {useUnifiedTopology: true});
 
