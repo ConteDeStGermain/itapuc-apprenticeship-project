@@ -14,6 +14,7 @@ const RoomArea = ({
   onNewRoom,
 }) => {
   const message = useRef("");
+  const [inbound, setInbound] = useState([]);
   const [messages, setMessages] = useState([]);
 
   // TODO: Connect to socket.io
@@ -38,20 +39,23 @@ const RoomArea = ({
     }
   };
 
-  const handleNewMessage = (data) => {
-      setMessages([...messages, data]);
-  };
-
   useEffect(() => {
     const socket = io.connect(`${apiHost}?token=${session.token}`);
     socket.on("new-message", (data) => {
-      handleNewMessage(data);
+      setInbound([data]);
     });
     loadMessages();
     return () => {
       socket.close();
     };
   }, [session]);
+
+  useEffect(() => {
+    if (inbound.length > 0) {
+      setMessages([...messages, ...inbound]);
+      setInbound([]);
+    }
+  }, [inbound]);
 
   const handleSend = async () => {
     const localMsg = message.current;
