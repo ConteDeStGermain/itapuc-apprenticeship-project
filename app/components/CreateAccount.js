@@ -3,7 +3,7 @@ import { Button, Form, Segment, Loader } from 'semantic-ui-react';
 
 import '../CSS/createAcc.css';
 
-const CreateAccount = ({ onAuthenticated }) => {
+const CreateAccount = ({ onAuthenticated, apiHost }) => {
     const [isCreatingAccount, setIsCreatingAccount] = useState(false);
     const email = useRef('');
     const displayName = useRef('');
@@ -16,7 +16,7 @@ const CreateAccount = ({ onAuthenticated }) => {
 
         setIsCreatingAccount(true);
         try {
-            const response = await fetch("http://localhost:8082/users", {
+            const response = await fetch(`${apiHost}/users`, {
                 method: "POST",
                 headers: {
                     "Content-Type" : "application/json",

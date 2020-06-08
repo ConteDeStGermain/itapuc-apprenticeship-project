@@ -4,7 +4,7 @@ import RoomArea from './RoomArea.js';
 
 import '../CSS/main.css';
 
-const Main = ({ session, onLogout }) => {
+const Main = ({ apiHost, session, onLogout }) => {
     const [selectedTab, selectTab] = useState('Rooms');
 
     const headers = useMemo(() => ({  "Content-Type" : "application/json", "Authorization" : session.token }), [session.token])
@@ -17,8 +17,8 @@ const Main = ({ session, onLogout }) => {
     const loadUsersAndRooms = async () => {
         try {
             const [usersResponse, roomsResponse] = await Promise.all([
-                fetch("http://localhost:8082/users", { headers }), 
-                fetch("http://localhost:8082/rooms", { headers }), 
+                fetch(`${apiHost}/users`, { headers }), 
+                fetch(`${apiHost}/rooms`, { headers }), 
             ]);
 
             if (usersResponse.ok) {

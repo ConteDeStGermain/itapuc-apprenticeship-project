@@ -7,6 +7,7 @@ const Login = (props) => {
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const email = useRef('');
     const password = useRef('');
+    const { apiHost } = props;
 
     async function handleClick () {
         if(isLoggingIn){
@@ -14,7 +15,7 @@ const Login = (props) => {
         }
         setIsLoggingIn(true);
         try {
-            const response = await fetch("http://localhost:8082/login", {
+            const response = await fetch(`${apiHost}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type" : "application/json",

@@ -4,7 +4,7 @@ import Message from './Message';
 
 import '../CSS/room.css';
 
-const RoomArea = ({ session, roomId, chattingUserId, headers, onNewRoom }) => {
+const RoomArea = ({ apiHost, session, roomId, chattingUserId, headers, onNewRoom }) => {
   const message = useRef('');
   const [messages, setMessages] = useState([]);
 
@@ -15,7 +15,7 @@ const RoomArea = ({ session, roomId, chattingUserId, headers, onNewRoom }) => {
     }
 
     try {
-        const messagesResponse = await fetch(`http://localhost:8082/rooms/${roomId}/messages`, { headers } );
+        const messagesResponse = await fetch(`${apiHost}/rooms/${roomId}/messages`, { headers } );
 
         if (messagesResponse.ok) {
            setMessages(await messagesResponse.json().then(({data}) => data));
@@ -37,7 +37,7 @@ const RoomArea = ({ session, roomId, chattingUserId, headers, onNewRoom }) => {
     if (localMsg === '') {
       return;
     } else if (!localRoomId) {
-      const postRoomResponse = await fetch('http://localhost:8082/rooms/', 
+      const postRoomResponse = await fetch(`${apiHost}/rooms/`, 
         { 
           method: 'POST',
           headers,
@@ -55,7 +55,7 @@ const RoomArea = ({ session, roomId, chattingUserId, headers, onNewRoom }) => {
 
     }
 
-    const postMsgResponse = await fetch(`http://localhost:8082/rooms/${localRoomId}/messages`, 
+    const postMsgResponse = await fetch(`${apiHost}/rooms/${localRoomId}/messages`, 
       { 
         method: 'POST',
         headers,
