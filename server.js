@@ -20,7 +20,7 @@ async function main() {
     const app = express();
     const server = Server(app);
     const io = socketIO(server);
-    const { db, client } = await connect(url, dbName);
+    const { db, client } = await connect(mongoUri, dbName);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Global middleware
