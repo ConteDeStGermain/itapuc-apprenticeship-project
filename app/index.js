@@ -39,7 +39,7 @@ const App = () => {
   return (
     <div>
       { session 
-        ? <Main session={session} onLogout /> 
+        ? <Main session={session} onLogout={ () => setSession(null) } /> 
         : <Auth onAuthenticated={({ data, token }) => {setSession({ user: data, token });}} /> 
       }
     </div>

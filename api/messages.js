@@ -77,10 +77,10 @@ function encodeMessage(document) {
 
 function validateBody(body, res) {
   if (typeof body !== "object" || body === null) {
-    res.json({ message: "request body must be a JSON object" }).status(400);
+    res.status(400).json({ message: "request body must be a JSON object" });
     return false;
   } else if (typeof body.text !== "string" || body.text === "") {
-    res.json({ message: "body.text required" }).status(400);
+    res.status(400).json({ message: "body.text required" });
     return false;
   }
   return true;

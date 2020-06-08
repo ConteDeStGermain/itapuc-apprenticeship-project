@@ -12,7 +12,6 @@ const Login = (props) => {
         if(isLoggingIn){
             return;
         }
-
         setIsLoggingIn(true);
         try {
             const response = await fetch("http://localhost:8082/login", {
