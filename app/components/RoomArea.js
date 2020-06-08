@@ -38,10 +38,14 @@ const RoomArea = ({
     }
   };
 
+  const handleNewMessage = (data) => {
+      setMessages([...messages, data]);
+  };
+
   useEffect(() => {
     const socket = io.connect(`${apiHost}?token=${session.token}`);
     socket.on("new-message", (data) => {
-      setMessages([...messages, data]);
+      handleNewMessage(data);
     });
     loadMessages();
     return () => {
