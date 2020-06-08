@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "parcel build index.html",
     "bundle": "parcel index.html"
   },
   "repository": {
