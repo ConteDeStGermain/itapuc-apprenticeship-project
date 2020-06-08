@@ -78,6 +78,7 @@ async function main() {
     io.use(auth.socketSession(db));
 
     io.on("connection", function handleConnection(socket) {
+      console.log("Joining: " + socket.user._id.toString());
       socket.join(socket.user._id.toString());
     });
 
