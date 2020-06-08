@@ -36,7 +36,7 @@ async function main() {
     app.use(auth.session(db));
 
     app.use(cors());
-    app.disable('etag');
+    app.disable("etag");
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Route middleware
@@ -78,7 +78,7 @@ async function main() {
     io.use(auth.socketSession(db));
 
     io.on("connection", function handleConnection(socket) {
-      socket.join(socket.user._idi.toString());
+      socket.join(socket.user._id.toString());
     });
 
     return { server, client };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Grid, Input, Button } from "semantic-ui-react";
 import Message from "./Message";
+import io from "socket.io-client";
 
 import "../CSS/room.css";
 
@@ -38,7 +39,14 @@ const RoomArea = ({
   };
 
   useEffect(() => {
+    const socket = io.connect(`${apiHost}/messages?token=${session.token}`);
+    socket.on("new-message", (data) => {
+      console.log(data);
+    });
     loadMessages();
+    return () => {
+      socket.close();
+    };
   }, [session]);
 
   const handleSend = async () => {
